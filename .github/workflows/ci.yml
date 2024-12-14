@@ -33,12 +33,13 @@ jobs:
           php artisan optimize:clear
       - name: Set environment variables
         run: |
+            echo "APP_ENV=local" >> .env
             echo "DB_CONNECTION=mysql" >> .env
-            echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+            echo "DB_HOST=db" >> .env
             echo "DB_PORT=3306" >> .env
-            echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DB_DATABASE=laravel" >> .env
+            echo "DB_USERNAME=laravel" >> .env
+            echo "DB_PASSWORD=laravel" >> .env
 
       - name: Run tests
         run: |
