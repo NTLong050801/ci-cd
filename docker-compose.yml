@@ -11,6 +11,11 @@ services:
             - ./:/var/www/html
         networks:
             - laravel
+        depends_on:
+            - db
+        ports:
+            - "80:80"
+            - "5173:5173"
 
     webserver:
         image: nginx:latest
@@ -52,3 +57,4 @@ volumes:
     dbdata:
 networks:
     laravel:
+        driver: bridge
