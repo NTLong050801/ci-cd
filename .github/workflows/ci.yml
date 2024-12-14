@@ -31,11 +31,17 @@ jobs:
       - name: clear cache
         run:
           php artisan optimize:clear
+      - name: Set environment variables
+        run: |
+            echo "DB_CONNECTION=mysql" >> .env
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+            echo "DB_PORT=3306" >> .env
+            echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+
       - name: Run tests
         run: |
-          echo "APP_ENV=local" >> .env
-          echo "APP_DEBUG=true" >> .env
-          echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env
           php artisan migrate --env=local --force
 
       - name: Build assets
