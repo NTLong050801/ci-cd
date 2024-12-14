@@ -1,28 +1,45 @@
+version: '3.8'
 services:
-    product:
+    app:
         build:
             context: .
             dockerfile: Dockerfile
-        ports:
-            - 8080:8080
+        image: php:8.1-fpm
+        container_name: app
+        working_dir: /var/www/html
         volumes:
-            - .:/app
-        command: 'php artisan serve --host=0.0.0.0'
-        depends_on:
-            - product_db
-    product_db:
-        image: mysql
+            - ./:/var/www/html
+        networks:
+            - laravel
+
+    webserver:
+        image: nginx:latest
+        container_name: webserver
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx:/etc/nginx/conf.d
+        networks:
+            - laravel
+
+    db:
+        image: mysql:8.0
+        container_name: db
         restart: always
-        ports:
-            - 3306:3306
-        volumes:
-            - dbdata:/var/lib/mysql
         environment:
-            MYSQL_DATABASE: product
-            MYSQL_ROOT_PASSWORD: laravel
+            MYSQL_DATABASE: laravel
             MYSQL_USER: laravel
             MYSQL_PASSWORD: laravel
-    volumes:
-        dbdata:
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "3306:3306"
+        volumes:
+            - dbdata:/var/lib/mysql
+        networks:
+            - laravel
 
-
+volumes:
+    dbdata:
+networks:
+    laravel:

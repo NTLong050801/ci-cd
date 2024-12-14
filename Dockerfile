@@ -1,42 +1,41 @@
-FROM php:8.1
+# Base image
+FROM php:8.1-fpm
 
-RUN apt-get -y update && apt-get install -y \
-    lib6c-dev \
-    libsasl2-dev \
-    libsasl2-modules \
-    libssl-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmcrypt-dev \
+# Set working directory
+WORKDIR /var/www/html
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
     libpng-dev \
-    zlib1g-dev \
-    libxml2-dev \
-    libzip-dev \
-    libonig-dev \
-    graphviz \
-    && docker-php-ext-configure gd \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install mysqli \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install sockets \
-    && docker-php-source delete \
-    && curl -sS https://getcomposer.org/installer | php -- \
-        --install-dir=/usr/local/bin --filename=composer
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql mbstring opcache
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
-RUN git clone https://github.com/edenhill/librdkafka.git \
-    && cd librdkafka \
-    && ./configure \
-    && make \
-    && make install \
-    && pecl install rdkafka \
-    && docker-php-ext-enable rdkafka
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+# Install Node.js (LTS)
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
+# Install npm dependencies
+RUN npm install -g npm
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy project files
 COPY . .
 
-RUN composer install
+# Expose port
+EXPOSE 9000
+
+# Start PHP-FPM
+CMD ["php-fpm"]
