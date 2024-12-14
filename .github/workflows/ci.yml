@@ -42,7 +42,7 @@ jobs:
 
       - name: Run tests
         run: |
-          php artisan migrate --env=local --force
+          php artisan migrate --force
 
       - name: Build assets
         run: |
