@@ -31,6 +31,13 @@ jobs:
       - name: clear cache
         run:
           php artisan optimize:clear
+      - name: Wait for MySQL to start
+        run: |
+          until nc -z -v -w30 db 3306; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+
       - name: Set environment variables
         run: |
             echo "APP_ENV=local" >> .env
