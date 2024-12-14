@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd pdo pdo_mysql mbstring opcache
 
 # Thêm Composer từ image chính thức
-COPY --from=composer:2.6 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Install Node.js (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
@@ -26,6 +26,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
 
 # Install npm dependencies
 RUN npm install -g npm
+
+RUN composer install
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
