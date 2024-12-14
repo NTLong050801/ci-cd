@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql mbstring opcache
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Thêm Composer từ image chính thức
+COPY --from=composer:2.6 /usr/bin/composer /usr/local/bin/composer
 
 # Install Node.js (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
