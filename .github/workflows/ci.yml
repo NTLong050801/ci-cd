@@ -31,12 +31,6 @@ jobs:
       - name: clear cache
         run:
           php artisan optimize:clear
-      - name: Wait for MySQL to start
-        run: |
-          until nc -z -v -w30 db 3306; do
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
 
       - name: Set environment variables
         run: |
@@ -47,6 +41,12 @@ jobs:
             echo "DB_DATABASE=laravel" >> .env
             echo "DB_USERNAME=laravel" >> .env
             echo "DB_PASSWORD=laravel" >> .env
+      - name: Wait for MySQL to start
+        run: |
+          until nc -z -v -w30 db 3306; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
 
       - name: Run tests
         run: |
