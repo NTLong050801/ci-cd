@@ -22,6 +22,15 @@ services:
             - ./docker/nginx:/etc/nginx/conf.d
         networks:
             - laravel
+    composer:
+        image: composer:latest
+        container_name: composer
+        volumes:
+            - ./:/var/www/html
+        working_dir: /var/www/html
+        networks:
+            - app-network
+        command: [ "composer", "--version" ]
 
     db:
         image: mysql:8.0
