@@ -1,0 +1,28 @@
+services:
+    product:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - 8080:8080
+        volumes:
+            - .:/app
+        command: 'php artisan serve --host=0.0.0.0'
+        depends_on:
+            - product_db
+    product_db:
+        image: mysql
+        restart: always
+        ports:
+            - 3306:3306
+        volumes:
+            - dbdata:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: product
+            MYSQL_ROOT_PASSWORD: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: laravel
+    volumes:
+        dbdata:
+
+
