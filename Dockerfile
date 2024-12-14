@@ -6,38 +6,45 @@ WORKDIR /var/www/html
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zip \
-    unzip \
-    git \
     curl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql mbstring opcache
+    gnupg \
+    git \
+    unzip \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    npm \
+    && apt-get clean
+
+
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && apt-get update && apt-get install -y yarn
 
 # Thêm Composer từ image chính thức
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install Node.js (LTS)
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs
 
-# Install npm dependencies
-RUN npm install -g npm
+WORKDIR /var/www/html
+COPY . .
 
 RUN composer install
+
+# Cài đặt các gói PHP cần thiết
+RUN docker-php-ext-install pdo pdo_mysql
+
+# Cài đặt các gói Yarn (ví dụ như SASS)
+RUN yarn install
+
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copy project files
-COPY . .
+RUN pecl install redis && docker-php-ext-enable redis
+# Cấu hình cổng
+EXPOSE 80
+EXPOSE 5173
 
-# Expose port
-EXPOSE 9000
-
-# Start PHP-FPM
+# Lệnh mặc định
 CMD ["php-fpm"]
