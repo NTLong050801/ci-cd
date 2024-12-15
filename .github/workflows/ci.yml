@@ -47,9 +47,3 @@ jobs:
       - name: Build assets
         run: |
           npm run build
-
-      - name: Deploy to server (optional)
-        run: |
-          ssh user@your-server 'cd /path/to/your/app && git pull && php artisan migrate'
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
