@@ -11,17 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: mysql:8.0
-        env:
-          MYSQL_DATABASE: laravel
-          MYSQL_USER: laravel
-          MYSQL_PASSWORD: laravel
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-            - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -50,9 +40,13 @@ jobs:
             php artisan optimize:clear
             php artisan optimize
 
+      - name: Install NPM dependencies
+        run: |
+          npm install
+
       - name: Build assets
         run: |
-          npm run dev
+          npm run build
 
       - name: Deploy to server (optional)
         run: |
