@@ -30,40 +30,25 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-      - name: copy .env
-        run: |
-          cp .env.example .env
-
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist
-
-      - name: Install NPM dependencies
-        run: |
-          npm install
-      - name: clear cache
-        run:
-          php artisan optimize:clear
-
-      - name: Set environment variables
-        run: |
-            echo "APP_ENV=local" >> .env
-            echo "DB_CONNECTION=mysql" >> .env
-            echo "DB_HOST=db" >> .env
-            echo "DB_PORT=3306" >> .env
-            echo "DB_DATABASE=laravel" >> .env
-            echo "DB_USERNAME=laravel" >> .env
-            echo "DB_PASSWORD=laravel" >> .env
-      - name: Wait for MySQL to start
-        run: |
-          until nc -z -v -w30 db 3306; do
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
-
-      - name: Run tests
-        run: |
-          php artisan migrate --force
+      - name: Ssh to server
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "."
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USER }}
+          TARGET: /var/www/ci-cd
+      - name: Run migrations
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/ci-cd
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan optimize
 
       - name: Build assets
         run: |
