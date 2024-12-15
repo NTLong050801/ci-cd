@@ -16,7 +16,7 @@
 <hr>
 <h2>Received Messages:</h2>
 <div id="messages"></div>
-
+<h1>hello from ci-cd</h1>
 <script>
     // Function to send message to producer
     function sendMessage() {
