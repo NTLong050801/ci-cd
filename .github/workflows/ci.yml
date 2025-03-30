@@ -13,7 +13,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
+    environment: production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,8 +43,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           TARGET: ${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
-      - name: Debug GitHub Environment Variables
-        run: printenv | grep -E 'APP_NAME|DB_HOST|MAIL_HOST'
+
       - name: Setup Environment and Run Migrations
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -55,7 +54,11 @@ jobs:
           script: |
             TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
             cd $TARGET_PATH
-
+            echo "APP_NAME=$APP_NAME"
+            echo "APP_ENV=$APP_ENV"
+            echo "APP_KEY=$APP_KEY"
+            echo "APP_DEBUG=$APP_DEBUG"
+            echo "APP_URL=$APP_URL"
             # Tạo file .env từ template
             envsubst < .env.example-ci-cd > .env
             echo "✅ .env file generated successfully!"
