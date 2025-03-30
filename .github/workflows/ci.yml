@@ -43,7 +43,8 @@ jobs:
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           TARGET: ${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
-
+      - name: Debug GitHub Environment Variables
+        run: printenv | grep -E 'APP_NAME|DB_HOST|MAIL_HOST'
       - name: Setup Environment and Run Migrations
         uses: appleboy/ssh-action@v0.1.6
         with:
