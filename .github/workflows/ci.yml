@@ -48,11 +48,6 @@ jobs:
           echo "APP_ENV=${{ vars.APP_ENV }}"
           echo "APP_URL=${{ vars.APP_URL }}"
           echo "APP_KEY=${{ vars.APP_KEY }}"
-      - name: Tạo file .env từ env.example-ci-cd
-        run: |
-          cp .env.example-ci-cd .env
-          export $(cat .env.example-ci-cd | grep -v '^#' | awk -F= '{print $1}')
-          envsubst < .env.example-ci-cd > .env
       - name: Setup Environment and Run Migrations
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -62,6 +57,12 @@ jobs:
           script: |
             TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
             cd $TARGET_PATH
+            cp .env.example-ci-cd .env
+            while IFS='=' read -r key _; do
+              if [[ ! -z "$key" && "$key" != \#* ]]; then
+                sed -i "s#\${$key}#${{ vars[$key] }}#g" .env
+              fi
+            done < .env.example-ci-cd
             echo "✅ .env file generated successfully!"
             chmod -R 775 storage bootstrap/cache
 
