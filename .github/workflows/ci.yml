@@ -4,46 +4,69 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-      - name: Ssh to server
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install Node.js and dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - run: npm install --frozen-lockfile
+      - run: npm run build
+
+      - name: Deploy via SSH
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SOURCE: "."
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
-          TARGET: /var/www/ci-cd
-      - name: Run migrations
+          TARGET: ${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
+
+      - name: Setup Environment and Run Migrations
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/ci-cd
-            php artisan migrate --force
+            TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
+            cd $TARGET_PATH
+
+            # Copy environment file
+            cp .env-example-ci-cd .env
+            export $(grep -v '^#' .env-example-ci-cd | xargs) && envsubst < .env-example-ci-cd > .env
+            echo "✅ .env file generated successfully!"
+
+            # Set permissions
+            chmod -R 775 storage bootstrap/cache
+            chown -R www-data:www-data storage bootstrap/cache
+
+            # Run migrations and optimizations
             php artisan optimize:clear
-            php artisan optimize
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
 
-      - name: Install NPM dependencies
-        run: |
-          npm install
-
-      - name: Build assets
-        run: |
-          npm run build
+            # Restart services
+            sudo systemctl restart nginx
