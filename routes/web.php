@@ -20,7 +20,7 @@ Route::get('/', function () {
 });
 
 Route::get('/users', function () {
-    $users = User::paginate(20);
+    $users = User::orderByDesc('id')->paginate(20);
     return view('users', compact('users'));
 });
 
