@@ -61,7 +61,7 @@ jobs:
             sed -i "s#\${APP_NAME}#${{ vars.APP_NAME }}#g" .env
             sed -i "s#\${APP_ENV}#${{ vars.APP_ENV }}#g" .env
             sed -i "s#\${APP_URL}#${{ vars.APP_URL }}#g" .env
-            sed -i "s#\${APP_KEY}#${{ vars.APP_KEY }}#g" .env
+            sed -i "s#\${APP_KEY}#${{ secrets.APP_KEY }}#g" .env
 
             echo "✅ .env file generated successfully!"
             chmod -R 775 storage bootstrap/cache
