@@ -34,7 +34,11 @@ jobs:
 
       - run: npm install --frozen-lockfile
       - run: npm run build
-
+      - name: Export Environment Variables
+        run: |
+          for var in $(printenv | cut -d= -f1); do
+            echo "$var=${{ vars[$var] }}" >> $GITHUB_ENV
+          done
       - name: Deploy via SSH
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
@@ -54,16 +58,12 @@ jobs:
           script: |
             TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
             cd $TARGET_PATH
-            echo "APP_NAME=$APP_NAME"
-            echo "APP_ENV=$APP_ENV"
-            echo "APP_KEY=$APP_KEY"
-            echo "APP_DEBUG=$APP_DEBUG"
-            echo "APP_URL=$APP_URL"
-            # Tạo file .env từ template
-            envsubst < .env.example-ci-cd > .env
+
+
+            printenv | grep -E 'APP_|DB_|MAIL_|REDIS_|AWS_|PUSHER_' > .env
             echo "✅ .env file generated successfully!"
 
-            # Thiết lập quyền
+      
             chmod -R 775 storage bootstrap/cache
 
             # Chạy các lệnh tối ưu hóa và migrations
