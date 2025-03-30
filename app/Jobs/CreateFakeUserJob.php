@@ -8,6 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class CreateFakeUserJob implements ShouldQueue
 {
@@ -26,6 +28,12 @@ class CreateFakeUserJob implements ShouldQueue
      */
     public function handle(): void
     {
-        User::factory()->create();
+        User::create([
+            'name' => 'User ' . Str::random(5),
+            'email' => 'user' . Str::random(5) . '@example.com',
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'), // password
+            'remember_token' => Str::random(10),
+        ]);
     }
 }
