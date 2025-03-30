@@ -54,16 +54,14 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          env: APP_NAME,APP_ENV,APP_KEY,APP_DEBUG,APP_URL,LOG_CHANNEL,LOG_DEPRECATIONS_CHANNEL,LOG_LEVEL,DB_CONNECTION,DB_HOST,DB_PORT,DB_DATABASE,DB_USERNAME,DB_PASSWORD
           script: |
             TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
             cd $TARGET_PATH
-            echo "APP_NAME=$APP_NAME"
-            echo "APP_ENV=$APP_ENV"
-            echo "APP_KEY=$APP_KEY"
-            echo "APP_DEBUG=$APP_DEBUG"
-            echo "APP_URL=$APP_URL"
-            envsubst < .env.example-ci-cd > .env
+            cp .env.example-ci-cd .env
+            sed -i "s#\${APP_NAME}#${{ vars.APP_NAME }}#g" .env
+            sed -i "s#\${APP_ENV}#${{ vars.APP_ENV }}#g" .env
+            sed -i "s#\${APP_URL}#${{ vars.APP_URL }}#g" .env
+            sed -i "s#\${APP_KEY}#${{ vars.APP_KEY }}#g" .env
 
             echo "✅ .env file generated successfully!"
             chmod -R 775 storage bootstrap/cache
