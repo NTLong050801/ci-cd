@@ -13,6 +13,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,7 +61,6 @@ jobs:
 
             # Set permissions
             chmod -R 775 storage bootstrap/cache
-            chown -R www-data:www-data storage bootstrap/cache
 
             # Run migrations and optimizations
             php artisan optimize:clear
