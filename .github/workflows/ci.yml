@@ -58,11 +58,9 @@ jobs:
             TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
             cd $TARGET_PATH
             cp .env.example-ci-cd .env
-            while IFS='=' read -r key _; do
-              if [[ ! -z "$key" && "$key" != \#* ]]; then
-                sed -i "s#\${$key}#${{ vars[$key] }}#g" .env
-              fi
-            done < .env.example-ci-cd
+            export $(grep -v '^#' env.example-ci-cd | xargs)
+            envsubst < env.example-ci-cd > .env
+          
             echo "✅ .env file generated successfully!"
             chmod -R 775 storage bootstrap/cache
 
