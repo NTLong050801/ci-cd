@@ -56,7 +56,11 @@ jobs:
 
             # Copy environment file
             cp .env.example-ci-cd .env
-            export $(grep -v '^#' .env.example-ci-cd | xargs) && envsubst < .env.example-ci-cd > .env
+            grep -v '^#' .env.example-ci-cd | awk -F= '{print $1}' | while read -r var; do
+              echo "$var=${!var}"
+            done
+            envsubst < .env.example-ci-cd > .env
+
             echo "✅ .env file generated successfully!"
 
             # Set permissions
