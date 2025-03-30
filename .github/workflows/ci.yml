@@ -62,6 +62,24 @@ jobs:
             sed -i "s#\${APP_ENV}#${{ vars.APP_ENV }}#g" .env
             sed -i "s#\${APP_URL}#${{ vars.APP_URL }}#g" .env
             sed -i "s#\${APP_KEY}#${{ secrets.APP_KEY }}#g" .env
+            sed -i "s#\${LOG_CHANNEL}#${{ vars.LOG_CHANNEL }}#g" .env
+            sed -i "s#\${LOG_DEPRECATIONS_CHANNEL}#${{ vars.LOG_DEPRECATIONS_CHANNEL }}#g" .env
+            sed -i "s#\${LOG_LEVEL}#${{ vars.LOG_LEVEL }}#g" .env
+
+            sed -i "s#\${DB_CONNECTION}#${{ vars.DB_CONNECTION }}#g" .env
+            sed -i "s#\${DB_HOST}#${{ vars.DB_HOST }}#g" .env
+            sed -i "s#\${DB_PORT}#${{ vars.DB_PORT }}#g" .env
+            sed -i "s#\${DB_DATABASE}#${{ vars.DB_DATABASE }}#g" .env
+            sed -i "s#\${DB_USERNAME}#${{ vars.DB_USERNAME }}#g" .env
+            sed -i "s#\${DB_PASSWORD}#${{ secrets.DB_PASSWORD }}#g" .env
+
+            sed -i "s#\${BROADCAST_DRIVER}#${{ vars.BROADCAST_DRIVER }}#g" .env
+            sed -i "s#\${CACHE_DRIVER}#${{ vars.CACHE_DRIVER }}#g" .env
+            sed -i "s#\${FILESYSTEM_DISK}#${{ vars.FILESYSTEM_DISK }}#g" .env
+            sed -i "s#\${QUEUE_CONNECTION}#${{ vars.QUEUE_CONNECTION }}#g" .env
+            sed -i "s#\${SESSION_DRIVER}#${{ vars.SESSION_DRIVER }}#g" .env
+            sed -i "s#\${SESSION_LIFETIME}#${{ vars.SESSION_LIFETIME }}#g" .env
+
 
             echo "✅ .env file generated successfully!"
             chmod -R 775 storage bootstrap/cache
