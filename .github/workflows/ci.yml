@@ -44,25 +44,19 @@ jobs:
           TARGET: ${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
       - name: Tạo file .env từ env.example-ci-cd
         run: |
-          cp env.example-ci-cd .env
-          export $(cat env.example-ci-cd | grep -v '^#' | awk -F= '{print $1}') 
-          envsubst < env.example-ci-cd > .env
+          cp .env.example-ci-cd .env
+          export $(cat .env.example-ci-cd | grep -v '^#' | awk -F= '{print $1}')
+          envsubst < .env.example-ci-cd > .env
       - name: Setup Environment and Run Migrations
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: APP_NAME,APP_ENV,APP_KEY,APP_DEBUG,APP_URL,LOG_CHANNEL,LOG_DEPRECATIONS_CHANNEL,LOG_LEVEL,DB_CONNECTION,DB_HOST,DB_PORT,DB_DATABASE,DB_USERNAME,DB_PASSWORD,REDIS_HOST,MAIL_MAILER,BROADCAST_DRIVER,CACHE_DRIVER,FILESYSTEM_DISK,QUEUE_CONNECTION,SESSION_DRIVER,SESSION_LIFETIME,MEMCACHED_HOST,REDIS_PASSWORD,REDIS_PORT,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_ENCRYPTION,MAIL_FROM_ADDRESS,MAIL_FROM_NAME,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_BUCKET,AWS_USE_PATH_STYLE_ENDPOINT,PUSHER_APP_ID,PUSHER_APP_KEY,PUSHER_APP_SECRET,PUSHER_HOST,PUSHER_PORT,PUSHER_SCHEME,PUSHER_APP_CLUSTER,VITE_PUSHER_APP_KEY,VITE_PUSHER_HOST,VITE_PUSHER_PORT,VITE_PUSHER_SCHEME,VITE_PUSHER_APP_CLUSTER
           script: |
             TARGET_PATH=${{ github.ref == 'refs/heads/main' && '/var/www/ci-cd' || '/var/www/ci-cd-dev' }}
             cd $TARGET_PATH
-
-
-            printenv | grep -E 'APP_|DB_|MAIL_|REDIS_|AWS_|PUSHER_' > .env
             echo "✅ .env file generated successfully!"
-
-
             chmod -R 775 storage bootstrap/cache
 
             # Chạy các lệnh tối ưu hóa và migrations
