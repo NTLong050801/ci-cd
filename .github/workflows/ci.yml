@@ -54,8 +54,8 @@ jobs:
             cd $TARGET_PATH
 
             # Copy environment file
-            cp .env-example-ci-cd .env
-            export $(grep -v '^#' .env.example-ci-cd | xargs) && envsubst < .env-example-ci-cd > .env
+            cp .env.example-ci-cd .env
+            export $(grep -v '^#' .env.example-ci-cd | xargs) && envsubst < .env.example-ci-cd > .env
             echo "✅ .env file generated successfully!"
 
             # Set permissions
