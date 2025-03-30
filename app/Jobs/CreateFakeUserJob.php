@@ -26,10 +26,6 @@ class CreateFakeUserJob implements ShouldQueue
      */
     public function handle(): void
     {
-        User::create([
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail,
-            'password' => bcrypt('password'),
-        ]);
+        User::factory()->create();
     }
 }
